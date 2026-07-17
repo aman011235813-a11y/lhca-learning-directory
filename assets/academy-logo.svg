@@ -1,0 +1,10 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="240" height="64" viewBox="0 0 240 64" role="img" aria-label="Leeds Health and Care Academy logo">
+  <rect width="240" height="64" fill="none"/>
+  <g transform="translate(4,4)">
+    <circle cx="28" cy="28" r="24" fill="#006E7D" />
+    <g transform="translate(56,8)" fill="#28739C" font-family="Open Sans, Arial, sans-serif">
+      <text x="0" y="18" font-size="18" font-weight="700">Leeds Health and</text>
+      <text x="0" y="40" font-size="20" font-weight="700">Care Academy</text>
+    </g>
+  </g>
+</svg>

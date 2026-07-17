@@ -1,0 +1,244 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Admin Panel - Healthcare Course Portal</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="admin-styles.css" />
+</head>
+<body>
+  <header class="site-header">
+    <a class="brand" href="index.html" aria-label="Leeds Health and Care Academy home">
+      <img src="assets/academy-logo.svg" class="brand-mark" alt="Leeds Health and Care Academy logo" />
+      <span class="brand-copy">
+        <strong>Leeds Health and Care Academy</strong>
+        <small>Administrative workspace</small>
+      </span>
+    </a>
+    <nav class="site-nav" aria-label="Primary">
+      <a href="index.html">Courses</a>
+      <a href="admin.html" class="active">Admin</a>
+    </nav>
+  </header>
+  <main class="admin-page">
+    <section id="loginSection" class="auth-section">
+      <div class="auth-container">
+        <img src="assets/banner.svg" class="admin-banner" alt="Fairer Healthier Leeds" />
+        <h1>Admin Login</h1>
+        <p class="auth-description">Sign in to manage healthcare courses</p>
+        <form id="loginForm" class="auth-form">
+          <div class="form-group">
+            <label for="loginEmail">Email</label>
+            <input type="email" id="loginEmail" required placeholder="admin@example.com" />
+          </div>
+          <div class="form-group">
+            <label for="loginPassword">Password</label>
+            <input type="password" id="loginPassword" required placeholder="Enter your password" />
+          </div>
+          <button type="submit" class="btn btn-primary">Sign In</button>
+          <p class="auth-message" id="loginMessage"></p>
+        </form>
+        <div class="auth-footer">
+          <p>Don't have an account? Contact your administrator for credentials.</p>
+        </div>
+      </div>
+    </section>
+    <section id="dashboardSection" class="dashboard-section" style="display: none;">
+      <div class="dashboard-header">
+        <h1>Course Management Dashboard</h1>
+        <button id="logoutBtn" class="btn btn-secondary">Logout</button>
+      </div>
+      <div class="admin-controls">
+        <div class="admin-search">
+          <label for="adminSearch" class="visually-hidden">Search courses</label>
+          <input id="adminSearch" class="search-input" type="search" placeholder="Search courses, providers, categories..." aria-label="Search courses" />
+        </div>
+        <div class="admin-actions">
+          <label for="reviewStatusFilter" class="visually-hidden">Filter by review status</label>
+          <select id="reviewStatusFilter" class="filter-select" aria-label="Filter by review status">
+            <option value="">All Review Statuses</option>
+            <option value="Draft">Draft</option>
+            <option value="In Review">In Review</option>
+            <option value="Approved">Approved</option>
+            <option value="Archived">Archived</option>
+            <option value="NA">N/A</option>
+          </select>
+          <label for="perPageSelect" class="visually-hidden">Items per page</label>
+          <select id="perPageSelect" class="per-page-select" aria-label="Items per page">
+            <option value="25">25 per page</option>
+            <option value="50">50 per page</option>
+            <option value="100">100 per page</option>
+          </select>
+        </div>
+      </div>
+      <div class="dashboard-content">
+        <div class="form-card">
+          <div class="section-heading">
+            <div>
+              <h2>Manage Existing Courses</h2>
+              <p class="section-description">Browse the current catalogue, update details, or remove course entries.</p>
+            </div>
+            <button id="refreshCoursesBtn" type="button" class="btn btn-secondary">Refresh</button>
+          </div>
+          <div class="section-actions">
+            <p class="section-controls-note">Paging and list controls for this course section.</p>
+            <div class="pagination">
+              <button id="prevPageBtn" class="btn btn-secondary">Previous</button>
+              <span class="page-info" id="pageInfo">Page 1</span>
+              <button id="nextPageBtn" class="btn btn-secondary">Next</button>
+              <button id="showMoreBtn" class="btn btn-primary">Show more</button>
+            </div>
+          </div>
+          <div id="coursesList" class="course-manager-list"></div>
+        </div>
+        <div class="form-card add-course-card">
+          <div class="section-heading">
+            <div>
+              <h2 id="formHeading">Add New Course</h2>
+              <p class="section-description">Create a new course entry or update an existing one.</p>
+            </div>
+            <button id="cancelEditBtn" type="button" class="btn btn-secondary" style="display: none;">Cancel Edit</button>
+          </div>
+          <form id="courseForm" class="course-form">
+            <fieldset>
+              <legend>Basic Information</legend>
+              <div class="form-row">
+                <div class="form-group full-width">
+                  <label for="title">Course Title *</label>
+                  <input type="text" id="title" name="title" required placeholder="e.g., Advanced Choice Documents" />
+                </div>
+              </div>
+              <div class="form-row">
+                <div class="form-group full-width">
+                  <label for="description">Description *</label>
+                  <textarea id="description" name="description" required rows="4" placeholder="Provide a detailed description of the course..."></textarea>
+                </div>
+              </div>
+              <div class="form-row">
+                <div class="form-group">
+                  <label for="provider">Provider *</label>
+                  <input type="text" id="provider" name="provider" required placeholder="e.g., Fairhealth, SLD Training" />
+                </div>
+                <div class="form-group">
+                  <label for="url">Course URL</label>
+                  <input type="url" id="url" name="url" placeholder="https://example.com/course" />
+                </div>
+              </div>
+            </fieldset>
+            <fieldset>
+              <legend>Course Details</legend>
+              <div class="form-row">
+                <div class="form-group">
+                  <label for="deliveryMode">Delivery Mode *</label>
+                  <select id="deliveryMode" name="delivery_mode" required>
+                    <option value="">Select delivery mode</option>
+                    <option value="Online">Online</option>
+                    <option value="Face to Face">Face to Face</option>
+                    <option value="Hybrid">Hybrid</option>
+                    <option value="NA">N/A</option>
+                  </select>
+                </div>
+                <div class="form-group">
+                  <label for="duration">Duration</label>
+                  <input type="text" id="duration" name="duration" placeholder="e.g., 1 day, 3 hours" />
+                </div>
+              </div>
+              <div class="form-row">
+                <div class="form-group">
+                  <label for="access">Access</label>
+                  <input type="text" id="access" name="access" placeholder="e.g., Register on website" />
+                </div>
+                <div class="form-group">
+                  <label for="educationOutcome">Education Outcome</label>
+                  <input type="text" id="educationOutcome" name="education_outcome" placeholder="e.g., Certificate of completion" />
+                </div>
+              </div>
+            </fieldset>
+            <fieldset>
+              <legend>Cost Information</legend>
+              <div class="form-row">
+                <div class="form-group">
+                  <label for="costCategory">Cost Category *</label>
+                  <select id="costCategory" name="cost_category" required>
+                    <option value="">Select cost category</option>
+                    <option value="Free">Free</option>
+                    <option value="Paid">Paid</option>
+                    <option value="TBC">TBC</option>
+                  </select>
+                </div>
+                <div class="form-group">
+                  <label for="costGbp">Cost (£)</label>
+                  <input type="number" id="costGbp" name="cost_gbp" step="0.01" min="0" placeholder="0" />
+                </div>
+              </div>
+            </fieldset>
+            <fieldset>
+              <legend>Categories & Audience</legend>
+              <div class="form-row">
+                <div class="form-group full-width">
+                  <label for="category">Category (comma-separated) *</label>
+                  <input type="text" id="category" name="category" required placeholder="e.g., Communication, Health promotion/prevention" />
+                  <small>Enter multiple values separated by commas</small>
+                </div>
+              </div>
+              <div class="form-row">
+                <div class="form-group full-width">
+                  <label for="targetAudience">Target Audience (comma-separated) *</label>
+                  <input type="text" id="targetAudience" name="target_audience" required placeholder="e.g., All (health, social care, VSO), GP's, primary care" />
+                  <small>Enter multiple values separated by commas</small>
+                </div>
+              </div>
+            </fieldset>
+            <fieldset>
+              <legend>Additional Information</legend>
+              <div class="form-row">
+                <div class="form-group">
+                  <label for="durationCategory">Duration Category</label>
+                  <select id="durationCategory" name="duration_category">
+                    <option value="">Select duration category</option>
+                    <option value="Less than an hour">Less than an hour</option>
+                    <option value="Less than a day">Less than a day</option>
+                    <option value="Less than a week">Less than a week</option>
+                    <option value="Less than a year">Less than a year</option>
+                    <option value="Various">Various</option>
+                  </select>
+                </div>
+                <div class="form-group">
+                  <label for="assetCategory">Asset Category</label>
+                  <input type="text" id="assetCategory" name="asset_category" placeholder="e.g., Course" />
+                </div>
+              </div>
+              <div class="form-row">
+                <div class="form-group">
+                  <label for="reviewStatus">Review Status *</label>
+                  <select id="reviewStatus" name="review_status" required>
+                    <option value="">Select status</option>
+                    <option value="Draft">Draft</option>
+                    <option value="In Review">In Review</option>
+                    <option value="Approved">Approved</option>
+                    <option value="Archived">Archived</option>
+                    <option value="NA">N/A</option>
+                  </select>
+                </div>
+                <div class="form-group">
+                  <label for="imageUrl">Image URL</label>
+                  <input type="url" id="imageUrl" name="image_url" placeholder="https://example.com/image.jpg" />
+                </div>
+              </div>
+            </fieldset>
+            <div class="form-actions">
+              <button id="submitCourseBtn" type="submit" class="btn btn-primary btn-large">Add Course</button>
+              <button type="reset" class="btn btn-secondary">Clear Form</button>
+            </div>
+            <p class="form-message" id="formMessage"></p>
+          </form>
+        </div>
+      </div>
+    </section>
+  </main>
+  <script src="admin.js"></script>
+</body>
+</html>

@@ -1,0 +1,16 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 600 400" role="img" aria-label="Healthcare learning icon illustration">
+  <defs>
+    <linearGradient id="grad5" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#009E9B" />
+      <stop offset="100%" stop-color="#64BA87" />
+    </linearGradient>
+  </defs>
+  <rect width="600" height="400" rx="36" fill="#effaf9" />
+  <rect x="110" y="110" width="210" height="210" rx="28" fill="#ffffff" />
+  <path d="M160 170h120" stroke="url(#grad5)" stroke-width="22" stroke-linecap="round" />
+  <path d="M160 220h170" stroke="#d6e6ee" stroke-width="18" stroke-linecap="round" />
+  <path d="M160 270h90" stroke="#d6e6ee" stroke-width="18" stroke-linecap="round" />
+  <circle cx="410" cy="160" r="42" fill="url(#grad5)" />
+  <circle cx="410" cy="160" r="14" fill="#ffffff" />
+  <path d="M400 220c10-18 30-18 40 0" stroke="#009E9B" stroke-width="16" stroke-linecap="round" />
+</svg>
