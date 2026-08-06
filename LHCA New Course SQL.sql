@@ -26,7 +26,7 @@ create table public.courses_new (
     cost_gbp numeric(10,2)
         not null
         default 0
-        check (cost_gbp = 0),
+        check (cost_gbp >= 0),
 
     cost_category text,
 
@@ -145,10 +145,12 @@ on public.courses_new
 for insert
 with check (false);
 
-create policy Public no update
+create policy "Allow authenticated users to update courses"
 on public.courses_new
 for update
-using (false);
+to authenticated
+using (true)
+with check (true);
 
 create policy Public no delete
 on public.courses_new

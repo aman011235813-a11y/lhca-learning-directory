@@ -37,11 +37,12 @@ const supabase = {
   key: SUPABASE_KEY,
   refreshPromise: null,
 
-  async request(method, path, body, token = null, retry = false) {
+  async request(method, path, body, token = null, retry = false, extraHeaders = {}) {
     const headers = {
       'Content-Type': 'application/json',
       apikey: this.key,
       Authorization: token ? `Bearer ${token}` : `Bearer ${this.key}`,
+      ...extraHeaders,
     };
 
     const response = await fetch(`${this.url}${path}`, {
@@ -204,6 +205,36 @@ function clearAuthSession() {
   localStorage.removeItem(EXPIRES_AT_KEY);
 }
 
+function updateCachedCourse(courseId, updates) {
+  const normalizedId = String(courseId);
+
+  cachedCourses = cachedCourses.map(course => {
+    if (String(course.id) !== normalizedId) {
+      return course;
+    }
+
+    return {
+      ...course,
+      ...updates,
+      id: course.id,
+    };
+  });
+
+  filteredCourses = filteredCourses.map(course => {
+    if (String(course.id) !== normalizedId) {
+      return course;
+    }
+
+    return {
+      ...course,
+      ...updates,
+      id: course.id,
+    };
+  });
+
+  renderCoursesPage();
+}
+
 function setAuthVisibility(isAuthenticated) {
   authSection.style.display = isAuthenticated ? 'none' : 'block';
   dashboardSection.style.display = isAuthenticated ? 'block' : 'none';
@@ -240,14 +271,16 @@ function formatValue(value) {
 }
 
 function createCoursePayload(formData) {
-  const costValue = Number(formData.get('cost_gbp'));
+  const rawCostValue = formData.get('cost_gbp');
+  const costValue = Number(rawCostValue);
+  const normalizedCostValue = Number.isNaN(costValue) ? 0 : Math.max(0, costValue);
 
   return {
     title: formData.get('title')?.toString().trim(),
     description: formData.get('description')?.toString().trim(),
     provider: formData.get('provider')?.toString().trim(),
     delivery_mode: formData.get('delivery_mode')?.toString().trim(),
-    cost_gbp: Number.isNaN(costValue) ? 0 : costValue,
+    cost_gbp: normalizedCostValue,
     cost_category: formData.get('cost_category')?.toString().trim() || 'NA',
     duration: formData.get('duration')?.toString().trim() || 'NA',
     duration_category: formData.get('duration_category')?.toString().trim() || null,
@@ -402,7 +435,20 @@ async function handleCourseSubmit(event) {
 
   try {
     if (currentEditingCourseId) {
-      await supabase.request('PATCH', `/rest/v1/courses_new?id=eq.${currentEditingCourseId}`, payload, accessToken);
+      const updatedCourse = await supabase.request(
+        'PATCH',
+        `/rest/v1/courses_new?id=eq.${encodeURIComponent(currentEditingCourseId)}`,
+        payload,
+        accessToken,
+        false,
+        { Prefer: 'return=representation' }
+      );
+
+      const savedCourse = Array.isArray(updatedCourse) && updatedCourse[0]
+        ? updatedCourse[0]
+        : { ...payload, id: currentEditingCourseId };
+
+      updateCachedCourse(currentEditingCourseId, savedCourse);
       formMessage.textContent = 'Course updated successfully.';
     } else {
       await supabase.request('POST', '/rest/v1/courses_new', payload, accessToken);
@@ -414,7 +460,8 @@ async function handleCourseSubmit(event) {
     await fetchCourses();
   } catch (error) {
     console.error('Course save failed:', error);
-    formMessage.textContent = 'Unable to save the course. Please try again.';
+    const detail = error?.message ? ` ${error.message}` : '';
+    formMessage.textContent = `Unable to save the course.${detail}`;
   }
 }
 
