@@ -79,6 +79,11 @@ function normalize(value) {
   return value.toString().trim().toLowerCase();
 }
 
+function isPublicCourse(course) {
+  const reviewStatus = String(course?.review_status || '').trim();
+  return reviewStatus.toLowerCase() !== 'archived';
+}
+
 function selectCourseThumbnail(course) {
   const seed = String(course.id ?? course.title ?? course.provider ?? 'default');
   let hash = 0;
@@ -331,6 +336,7 @@ async function renderCourses() {
 
   // Filter courses in memory
   const visibleCourses = allCourses.filter(course =>
+    isPublicCourse(course) &&
     matchesSearch(course, query) &&
     matchesProvider(course, selectedProviders) &&
     matchesCategory(course, selectedCategories) &&
@@ -418,7 +424,7 @@ function handleFilterChange() {
 async function initializePortal() {
   try {
     // Fetch all courses from Supabase
-    allCourses = await supabase.getCourses();
+    allCourses = (await supabase.getCourses()).filter(isPublicCourse);
     
     // Extract unique values from all array and text fields (real-time from backend)
     const providerSet = new Set();
