@@ -116,6 +116,7 @@ small { font-size: 0.9rem; color: var(--text-secondary); }
 .course-manager-actions { display: flex; gap: 0.75rem; flex-wrap: wrap; align-items: center; }
 .course-manager-actions button { min-height: 2.75rem; padding: 0 1rem; border-radius: 0.85rem; border: none; cursor: pointer; font-weight: 700; }
 .course-manager-actions .edit-btn { background: var(--primary-blue); color: white; }
+.course-manager-actions .archive-btn { background: #eff6ff; color: #1d4ed8; }
 .course-manager-actions .delete-btn { background: #fef2f2; color: #b91c1c; }
 .add-course-card { background: #f7fbff; border-color: rgba(56, 135, 173, 0.16); }
 .add-course-card .course-form { padding-top: 0; }

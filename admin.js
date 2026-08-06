@@ -243,7 +243,7 @@ function removeCachedCourse(courseId) {
   renderCoursesPage();
 }
 
-function showArchiveConfirmation(course, onConfirm) {
+function showActionConfirmation({ title, message, confirmLabel, confirmClassName, onConfirm }) {
   const overlay = document.createElement('div');
   overlay.style.position = 'fixed';
   overlay.style.inset = '0';
@@ -263,11 +263,11 @@ function showArchiveConfirmation(course, onConfirm) {
   dialog.style.boxShadow = '0 20px 40px rgba(0, 0, 0, 0.2)';
 
   dialog.innerHTML = `
-    <h3 style="margin: 0 0 10px; color: #0f172a;">Archive course?</h3>
-    <p style="margin: 0 0 18px; color: #334155;">${(course.title || 'This course').replace(/</g, '&lt;')} will be marked as archived and hidden from the public search.</p>
+    <h3 style="margin: 0 0 10px; color: #0f172a;">${title}</h3>
+    <p style="margin: 0 0 18px; color: #334155;">${message}</p>
     <div style="display: flex; justify-content: flex-end; gap: 10px;">
-      <button type="button" class="archive-confirm-cancel" style="padding: 10px 14px; border: 1px solid #cbd5e1; background: #fff; border-radius: 8px; cursor: pointer;">Cancel</button>
-      <button type="button" class="archive-confirm-archive" style="padding: 10px 14px; border: 0; background: #2563eb; color: #fff; border-radius: 8px; cursor: pointer;">Archive</button>
+      <button type="button" class="confirm-cancel" style="padding: 10px 14px; border: 1px solid #cbd5e1; background: #fff; border-radius: 8px; cursor: pointer;">Cancel</button>
+      <button type="button" class="confirm-action ${confirmClassName || ''}" style="padding: 10px 14px; border: 0; background: #2563eb; color: #fff; border-radius: 8px; cursor: pointer;">${confirmLabel}</button>
     </div>
   `;
 
@@ -275,10 +275,30 @@ function showArchiveConfirmation(course, onConfirm) {
   document.body.appendChild(overlay);
 
   const cleanup = () => overlay.remove();
-  overlay.querySelector('.archive-confirm-cancel').addEventListener('click', cleanup);
-  overlay.querySelector('.archive-confirm-archive').addEventListener('click', () => {
+  overlay.querySelector('.confirm-cancel').addEventListener('click', cleanup);
+  overlay.querySelector('.confirm-action').addEventListener('click', () => {
     cleanup();
     onConfirm();
+  });
+}
+
+function showArchiveConfirmation(course, onConfirm) {
+  showActionConfirmation({
+    title: 'Archive course?',
+    message: `${(course.title || 'This course').replace(/</g, '&lt;')} will be marked as archived and hidden from the public search.`,
+    confirmLabel: 'Archive',
+    confirmClassName: 'archive-confirm-action',
+    onConfirm,
+  });
+}
+
+function showDeleteConfirmation(course, onConfirm) {
+  showActionConfirmation({
+    title: 'Delete course permanently?',
+    message: `${(course.title || 'This course').replace(/</g, '&lt;')} will be permanently removed from the catalogue. This cannot be undone.`,
+    confirmLabel: 'Delete permanently',
+    confirmClassName: 'delete-confirm-action',
+    onConfirm,
   });
 }
 
@@ -397,6 +417,10 @@ function renderCoursesList(courses) {
           <button type="button" class="edit-btn" data-action="edit" data-id="${course.id}" aria-label="Edit ${course.title}">
             <svg width="16" height="16" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path fill="currentColor" d="M3 17.25V21h3.75L17.81 9.94l-3.75-3.75L3 17.25zM20.71 7.04a1 1 0 000-1.41l-2.34-2.34a1 1 0 00-1.41 0l-1.83 1.83 3.75 3.75 1.83-1.83z"/></svg>
             Edit
+          </button>
+          <button type="button" class="archive-btn" data-action="archive" data-id="${course.id}" aria-label="Archive ${course.title}">
+            <svg width="16" height="16" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path fill="currentColor" d="M3 4h18v3H3V4zm2 4h14v10a2 2 0 01-2 2H7a2 2 0 01-2-2V8zm3 2v8h2v-8H8zm4 0v8h2v-8h-2z"/></svg>
+            Archive
           </button>
           <button type="button" class="delete-btn" data-action="delete" data-id="${course.id}" aria-label="Delete ${course.title}">
             <svg width="16" height="16" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path fill="currentColor" d="M6 19a2 2 0 002 2h8a2 2 0 002-2V7H6v12zM19 4h-3.5l-1-1h-5l-1 1H5v2h14V4z"/></svg>
@@ -529,7 +553,7 @@ async function handleCourseListAction(event) {
     return;
   }
 
-  if (action === 'delete') {
+  if (action === 'archive') {
     event.preventDefault();
     event.stopPropagation();
 
@@ -572,6 +596,47 @@ async function handleCourseListAction(event) {
       } finally {
         button.disabled = false;
         button.textContent = 'Archive';
+      }
+    });
+    return;
+  }
+
+  if (action === 'delete') {
+    event.preventDefault();
+    event.stopPropagation();
+
+    showDeleteConfirmation(course, async () => {
+      button.disabled = true;
+      button.textContent = 'Deleting…';
+      formMessage.textContent = 'Deleting course...';
+
+      const accessToken = await getValidAccessToken();
+      if (!accessToken) {
+        formMessage.textContent = 'Your session has expired. Please sign in again.';
+        setAuthVisibility(false);
+        return;
+      }
+
+      try {
+        await supabase.request(
+          'DELETE',
+          `/rest/v1/courses_new?id=eq.${encodeURIComponent(courseId)}`,
+          null,
+          accessToken
+        );
+
+        removeCachedCourse(course.id);
+        formMessage.textContent = 'Course deleted permanently.';
+        if (currentEditingCourseId === course.id) {
+          setFormMode(false);
+        }
+      } catch (error) {
+        console.error('Course delete failed:', error);
+        formMessage.textContent = 'Unable to delete the course. Please try again.';
+        await fetchCourses();
+      } finally {
+        button.disabled = false;
+        button.textContent = 'Delete';
       }
     });
   }
