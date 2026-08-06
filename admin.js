@@ -235,6 +235,53 @@ function updateCachedCourse(courseId, updates) {
   renderCoursesPage();
 }
 
+function removeCachedCourse(courseId) {
+  const normalizedId = String(courseId);
+
+  cachedCourses = cachedCourses.filter(course => String(course.id) !== normalizedId);
+  filteredCourses = filteredCourses.filter(course => String(course.id) !== normalizedId);
+  renderCoursesPage();
+}
+
+function showDeleteConfirmation(course, onConfirm) {
+  const overlay = document.createElement('div');
+  overlay.style.position = 'fixed';
+  overlay.style.inset = '0';
+  overlay.style.background = 'rgba(15, 23, 42, 0.55)';
+  overlay.style.display = 'flex';
+  overlay.style.alignItems = 'center';
+  overlay.style.justifyContent = 'center';
+  overlay.style.zIndex = '2000';
+  overlay.style.padding = '16px';
+
+  const dialog = document.createElement('div');
+  dialog.style.background = '#fff';
+  dialog.style.borderRadius = '12px';
+  dialog.style.maxWidth = '420px';
+  dialog.style.width = '100%';
+  dialog.style.padding = '20px';
+  dialog.style.boxShadow = '0 20px 40px rgba(0, 0, 0, 0.2)';
+
+  dialog.innerHTML = `
+    <h3 style="margin: 0 0 10px; color: #0f172a;">Delete course?</h3>
+    <p style="margin: 0 0 18px; color: #334155;">${(course.title || 'This course').replace(/</g, '&lt;')} will be removed from the catalogue.</p>
+    <div style="display: flex; justify-content: flex-end; gap: 10px;">
+      <button type="button" class="delete-confirm-cancel" style="padding: 10px 14px; border: 1px solid #cbd5e1; background: #fff; border-radius: 8px; cursor: pointer;">Cancel</button>
+      <button type="button" class="delete-confirm-delete" style="padding: 10px 14px; border: 0; background: #dc2626; color: #fff; border-radius: 8px; cursor: pointer;">Delete</button>
+    </div>
+  `;
+
+  overlay.appendChild(dialog);
+  document.body.appendChild(overlay);
+
+  const cleanup = () => overlay.remove();
+  overlay.querySelector('.delete-confirm-cancel').addEventListener('click', cleanup);
+  overlay.querySelector('.delete-confirm-delete').addEventListener('click', () => {
+    cleanup();
+    onConfirm();
+  });
+}
+
 function setAuthVisibility(isAuthenticated) {
   authSection.style.display = isAuthenticated ? 'none' : 'block';
   dashboardSection.style.display = isAuthenticated ? 'block' : 'none';
@@ -483,27 +530,37 @@ async function handleCourseListAction(event) {
   }
 
   if (action === 'delete') {
-    const confirmed = window.confirm(`Delete "${course.title || 'this course'}"?`);
-    if (!confirmed) return;
+    event.preventDefault();
+    event.stopPropagation();
 
-    const accessToken = await getValidAccessToken();
-    if (!accessToken) {
-      formMessage.textContent = 'Your session has expired. Please sign in again.';
-      setAuthVisibility(false);
-      return;
-    }
+    showDeleteConfirmation(course, async () => {
+      button.disabled = true;
+      button.textContent = 'Deleting…';
+      removeCachedCourse(course.id);
+      formMessage.textContent = 'Deleting course...';
 
-    try {
-      await supabase.request('DELETE', `/rest/v1/courses_new?id=eq.${courseId}`, null, accessToken);
-      formMessage.textContent = 'Course deleted successfully.';
-      if (currentEditingCourseId === course.id) {
-        setFormMode(false);
+      const accessToken = await getValidAccessToken();
+      if (!accessToken) {
+        formMessage.textContent = 'Your session has expired. Please sign in again.';
+        setAuthVisibility(false);
+        return;
       }
-      await fetchCourses();
-    } catch (error) {
-      console.error('Course delete failed:', error);
-      formMessage.textContent = 'Unable to delete the course. Please try again.';
-    }
+
+      try {
+        await supabase.request('DELETE', `/rest/v1/courses_new?id=eq.${courseId}`, null, accessToken);
+        formMessage.textContent = 'Course deleted successfully.';
+        if (currentEditingCourseId === course.id) {
+          setFormMode(false);
+        }
+      } catch (error) {
+        console.error('Course delete failed:', error);
+        formMessage.textContent = 'Unable to delete the course. Please try again.';
+        await fetchCourses();
+      } finally {
+        button.disabled = false;
+        button.textContent = 'Delete';
+      }
+    });
   }
 }
 
