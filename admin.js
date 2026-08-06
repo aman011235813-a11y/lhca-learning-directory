@@ -243,7 +243,7 @@ function removeCachedCourse(courseId) {
   renderCoursesPage();
 }
 
-function showDeleteConfirmation(course, onConfirm) {
+function showArchiveConfirmation(course, onConfirm) {
   const overlay = document.createElement('div');
   overlay.style.position = 'fixed';
   overlay.style.inset = '0';
@@ -257,17 +257,17 @@ function showDeleteConfirmation(course, onConfirm) {
   const dialog = document.createElement('div');
   dialog.style.background = '#fff';
   dialog.style.borderRadius = '12px';
-  dialog.style.maxWidth = '420px';
+  dialog.style.maxWidth = '480px';
   dialog.style.width = '100%';
   dialog.style.padding = '20px';
   dialog.style.boxShadow = '0 20px 40px rgba(0, 0, 0, 0.2)';
 
   dialog.innerHTML = `
-    <h3 style="margin: 0 0 10px; color: #0f172a;">Delete course?</h3>
-    <p style="margin: 0 0 18px; color: #334155;">${(course.title || 'This course').replace(/</g, '&lt;')} will be removed from the catalogue.</p>
+    <h3 style="margin: 0 0 10px; color: #0f172a;">Archive course?</h3>
+    <p style="margin: 0 0 18px; color: #334155;">${(course.title || 'This course').replace(/</g, '&lt;')} will be marked as archived and hidden from the public search.</p>
     <div style="display: flex; justify-content: flex-end; gap: 10px;">
-      <button type="button" class="delete-confirm-cancel" style="padding: 10px 14px; border: 1px solid #cbd5e1; background: #fff; border-radius: 8px; cursor: pointer;">Cancel</button>
-      <button type="button" class="delete-confirm-delete" style="padding: 10px 14px; border: 0; background: #dc2626; color: #fff; border-radius: 8px; cursor: pointer;">Delete</button>
+      <button type="button" class="archive-confirm-cancel" style="padding: 10px 14px; border: 1px solid #cbd5e1; background: #fff; border-radius: 8px; cursor: pointer;">Cancel</button>
+      <button type="button" class="archive-confirm-archive" style="padding: 10px 14px; border: 0; background: #2563eb; color: #fff; border-radius: 8px; cursor: pointer;">Archive</button>
     </div>
   `;
 
@@ -275,8 +275,8 @@ function showDeleteConfirmation(course, onConfirm) {
   document.body.appendChild(overlay);
 
   const cleanup = () => overlay.remove();
-  overlay.querySelector('.delete-confirm-cancel').addEventListener('click', cleanup);
-  overlay.querySelector('.delete-confirm-delete').addEventListener('click', () => {
+  overlay.querySelector('.archive-confirm-cancel').addEventListener('click', cleanup);
+  overlay.querySelector('.archive-confirm-archive').addEventListener('click', () => {
     cleanup();
     onConfirm();
   });
@@ -533,11 +533,10 @@ async function handleCourseListAction(event) {
     event.preventDefault();
     event.stopPropagation();
 
-    showDeleteConfirmation(course, async () => {
+    showArchiveConfirmation(course, async () => {
       button.disabled = true;
-      button.textContent = 'Deleting…';
-      removeCachedCourse(course.id);
-      formMessage.textContent = 'Deleting course...';
+      button.textContent = 'Archiving…';
+      formMessage.textContent = 'Archiving course...';
 
       const accessToken = await getValidAccessToken();
       if (!accessToken) {
@@ -547,18 +546,32 @@ async function handleCourseListAction(event) {
       }
 
       try {
-        await supabase.request('DELETE', `/rest/v1/courses_new?id=eq.${courseId}`, null, accessToken);
-        formMessage.textContent = 'Course deleted successfully.';
+        const payload = {
+          review_status: 'Archived',
+          updated_at: new Date().toISOString(),
+        };
+
+        await supabase.request(
+          'PATCH',
+          `/rest/v1/courses_new?id=eq.${encodeURIComponent(courseId)}`,
+          payload,
+          accessToken,
+          false,
+          { Prefer: 'return=representation' }
+        );
+
+        removeCachedCourse(course.id);
+        formMessage.textContent = 'Course archived successfully.';
         if (currentEditingCourseId === course.id) {
           setFormMode(false);
         }
       } catch (error) {
-        console.error('Course delete failed:', error);
-        formMessage.textContent = 'Unable to delete the course. Please try again.';
+        console.error('Course archive failed:', error);
+        formMessage.textContent = 'Unable to archive the course. Please try again.';
         await fetchCourses();
       } finally {
         button.disabled = false;
-        button.textContent = 'Delete';
+        button.textContent = 'Archive';
       }
     });
   }
