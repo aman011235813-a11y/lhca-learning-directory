@@ -165,6 +165,32 @@ function matchesCostCategory(course, costCategories) {
   return costCategories.includes(course.cost_category);
 }
 
+function getFilterDisplayLabel(filterName, plural = false) {
+  const labelMap = {
+    category: 'category',
+    cost_category: 'cost category',
+    delivery_mode: 'delivery mode',
+    target_audience: 'target audience',
+    provider: 'provider'
+  };
+
+  const baseLabel = labelMap[filterName] || filterName.replace(/_/g, ' ');
+
+  if (!plural) {
+    return baseLabel;
+  }
+
+  if (baseLabel.endsWith('s')) {
+    return baseLabel;
+  }
+
+  if (baseLabel.endsWith('y')) {
+    return `${baseLabel.slice(0, -1)}ies`;
+  }
+
+  return `${baseLabel}s`;
+}
+
 function renderFilterCheckList(filterId, items, filterName, showMoreId, forceAllItemsOnLoad = false) {
   const filterContainer = document.getElementById(filterId);
   const expanded = expandedFilters[filterId] || forceAllItemsOnLoad;
@@ -208,7 +234,8 @@ function renderFilterCheckList(filterId, items, filterName, showMoreId, forceAll
     const showMoreBtn = document.getElementById(showMoreId);
     if (items.length > ITEMS_PER_FILTER) {
       showMoreBtn.style.display = 'inline-block';
-      showMoreBtn.textContent = expanded ? `Show fewer ${filterName}s` : `Show all ${filterName}s`;
+      const displayLabel = getFilterDisplayLabel(filterName, true);
+      showMoreBtn.textContent = expanded ? `Show fewer ${displayLabel}` : `Show all ${displayLabel}`;
       showMoreBtn.addEventListener('click', () => {
         expandedFilters[filterId] = !expandedFilters[filterId];
         renderFilterCheckList(filterId, items, filterName, showMoreId, false);
