@@ -375,6 +375,14 @@ if (mobileToggle) {
   mobileToggle.addEventListener('click', () => {
     const open = document.body.classList.toggle('filters-open');
     mobileToggle.setAttribute('aria-expanded', open ? 'true' : 'false');
+    // On mobile open, collapse all filter groups to show headings-only overview
+    if (open && window.matchMedia('(max-width: 938px)').matches) {
+      document.querySelectorAll('.filter-group').forEach(group => {
+        // Keep the top-level 'Filters' block (h2) expanded
+        if (group.querySelector('h2')) return;
+        group.classList.add('collapsed');
+      });
+    }
   });
 }
 
@@ -385,7 +393,21 @@ function setupFilterAccordions() {
     if (!header) return;
     header.style.cursor = 'pointer';
     header.addEventListener('click', () => {
-      group.classList.toggle('collapsed');
+      const isMobile = window.matchMedia('(max-width: 938px)').matches;
+      if (isMobile) {
+        // On mobile, expand this group and collapse other groups (exclusive accordion)
+        const willExpand = group.classList.contains('collapsed');
+        document.querySelectorAll('.filter-group').forEach(g => {
+          if (g.querySelector('h2')) return; // skip header block
+          g.classList.add('collapsed');
+        });
+        if (willExpand) {
+          group.classList.remove('collapsed');
+        }
+      } else {
+        // Desktop/tablet: simple toggle
+        group.classList.toggle('collapsed');
+      }
     });
   });
 }
