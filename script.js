@@ -363,11 +363,11 @@ function handleCheckboxChange(event) {
   }
 
   const checkboxes = Array.from(container.querySelectorAll(`input[name="${name}"]:not(.select-all-checkbox)`));
-  // Determine whether all items were selected before this interaction
-  const previousAllSelected = checkboxes.every(c => {
-    if (c === cb) return cb.dataset && cb.dataset.wasChecked === '1';
-    return c.checked;
-  });
+  // Determine whether all items were selected before this interaction.
+  // Use a reliable post-change inference: if all other checkboxes remain checked
+  // and the clicked box is now unchecked, we can conclude the group was all-selected
+  // before this change (label clicks and touch events may not set pointer markers).
+  const previousAllSelected = checkboxes.filter(c => c !== cb).every(c => c.checked) && !cb.checked;
 
   if (previousAllSelected) {
     // User clicked while everything was selected -> make this the only selected item
@@ -390,8 +390,8 @@ function handleCheckboxChange(event) {
     }
   }
 
-  // cleanup temporary marker
-  if (cb.dataset) delete cb.dataset.wasChecked;
+  // cleanup temporary marker if present
+  if (cb.dataset && cb.dataset.wasChecked) delete cb.dataset.wasChecked;
 
   handleFilterChange();
 }
