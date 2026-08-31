@@ -111,14 +111,22 @@ button, input, select, textarea, a {
   box-shadow: var(--shadow);
   border: 1px solid var(--border);
 }
-.masthead { width: 100%; display: block; padding-top: 0.5rem; }
-.masthead-banner { width: 100%; height: auto; object-fit: cover; display: block; }
-
-/* Large logo positioned top-right in header */
-.masthead-banner { max-height: 240px; object-fit: cover; }
+.masthead {
+  width: 100%;
+  display: flex;
+  justify-content: flex-end;
+  padding-top: 0.5rem;
+}
+.masthead-banner {
+  width: min(100%, 460px);
+  height: auto;
+  object-fit: contain;
+  display: block;
+  max-height: 200px;
+}
 
 @media (max-width: 938px) {
-  .masthead-banner { max-height: 160px; object-fit: contain; }
+  .masthead-banner { max-height: 140px; width: min(100%, 320px); }
 }
 .hero-copy { max-width: 720px; }
 .eyebrow {
