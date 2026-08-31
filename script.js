@@ -94,22 +94,53 @@ function selectCourseThumbnail(course) {
 }
 
 function getSelectedProviders() {
+  const inputs = Array.from(document.querySelectorAll('input[name="provider"]'));
+  const selectAll = inputs.find(i => i.classList && i.classList.contains('select-all-checkbox'));
+  // If not all provider options are rendered and Select All is checked, treat as no filter
+  if (inputs.length > 0) {
+    const realCount = inputs.filter(i => !i.classList.contains('select-all-checkbox')).length;
+    if (realCount < uniqueProviders.length && selectAll && selectAll.checked) return [];
+  }
   return Array.from(document.querySelectorAll('input[name="provider"]:checked')).map(input => input.value);
 }
 
 function getSelectedCategories() {
+  const inputs = Array.from(document.querySelectorAll('input[name="category"]'));
+  const selectAll = inputs.find(i => i.classList && i.classList.contains('select-all-checkbox'));
+  if (inputs.length > 0) {
+    const realCount = inputs.filter(i => !i.classList.contains('select-all-checkbox')).length;
+    if (realCount < uniqueCategories.length && selectAll && selectAll.checked) return [];
+  }
   return Array.from(document.querySelectorAll('input[name="category"]:checked')).map(input => input.value);
 }
 
 function getSelectedDeliveryModes() {
+  const inputs = Array.from(document.querySelectorAll('input[name="delivery_mode"]'));
+  const selectAll = inputs.find(i => i.classList && i.classList.contains('select-all-checkbox'));
+  if (inputs.length > 0) {
+    const realCount = inputs.filter(i => !i.classList.contains('select-all-checkbox')).length;
+    if (realCount < uniqueDeliveryModes.length && selectAll && selectAll.checked) return [];
+  }
   return Array.from(document.querySelectorAll('input[name="delivery_mode"]:checked')).map(input => input.value);
 }
 
 function getSelectedCostCategories() {
+  const inputs = Array.from(document.querySelectorAll('input[name="cost_category"]'));
+  const selectAll = inputs.find(i => i.classList && i.classList.contains('select-all-checkbox'));
+  if (inputs.length > 0) {
+    const realCount = inputs.filter(i => !i.classList.contains('select-all-checkbox')).length;
+    if (realCount < uniqueCostCategories.length && selectAll && selectAll.checked) return [];
+  }
   return Array.from(document.querySelectorAll('input[name="cost_category"]:checked')).map(input => input.value);
 }
 
 function getSelectedTargetAudiences() {
+  const inputs = Array.from(document.querySelectorAll('input[name="target_audience"]'));
+  const selectAll = inputs.find(i => i.classList && i.classList.contains('select-all-checkbox'));
+  if (inputs.length > 0) {
+    const realCount = inputs.filter(i => !i.classList.contains('select-all-checkbox')).length;
+    if (realCount < uniqueTargetAudiences.length && selectAll && selectAll.checked) return [];
+  }
   return Array.from(document.querySelectorAll('input[name="target_audience"]:checked')).map(input => input.value);
 }
 
