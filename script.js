@@ -231,6 +231,15 @@ function renderFilterCheckList(filterId, items, filterName, showMoreId, forceAll
     checkbox.name = filterName;
     checkbox.value = item;
     checkbox.checked = true;
+    // Record prior state for pointer and keyboard interactions so we can detect "all selected" -> single-select behavior
+    checkbox.addEventListener('pointerdown', () => {
+      checkbox.dataset.wasChecked = checkbox.checked ? '1' : '0';
+    });
+    checkbox.addEventListener('keydown', (e) => {
+      if (e.key === ' ' || e.key === 'Spacebar' || e.key === 'Enter') {
+        checkbox.dataset.wasChecked = checkbox.checked ? '1' : '0';
+      }
+    });
     checkbox.addEventListener('change', handleCheckboxChange);
 
     label.appendChild(checkbox);
@@ -307,6 +316,9 @@ function updateProviderList() {
     checkbox.name = 'provider';
     checkbox.value = provider;
     checkbox.checked = preserveSelection ? selectedProviderSet.has(provider) : true;
+    // Record prior state for pointer and keyboard interactions
+    checkbox.addEventListener('pointerdown', () => { checkbox.dataset.wasChecked = checkbox.checked ? '1' : '0'; });
+    checkbox.addEventListener('keydown', (e) => { if (e.key === ' ' || e.key === 'Spacebar' || e.key === 'Enter') checkbox.dataset.wasChecked = checkbox.checked ? '1' : '0'; });
     checkbox.addEventListener('change', handleCheckboxChange);
 
     label.appendChild(checkbox);
@@ -351,8 +363,20 @@ function handleCheckboxChange(event) {
   }
 
   const checkboxes = Array.from(container.querySelectorAll(`input[name="${name}"]:not(.select-all-checkbox)`));
-  if (cb.checked) {
-    // Make this the only checked box in the group
+  // Determine whether all items were selected before this interaction
+  const previousAllSelected = checkboxes.every(c => {
+    if (c === cb) return cb.dataset && cb.dataset.wasChecked === '1';
+    return c.checked;
+  });
+
+  if (previousAllSelected) {
+    // User clicked while everything was selected -> make this the only selected item
+    checkboxes.forEach(c => { c.checked = false; });
+    cb.checked = true;
+    const selectAll = container.querySelector('.select-all-checkbox');
+    if (selectAll) selectAll.checked = false;
+  } else if (cb.checked) {
+    // Normal behavior: make this the only checked box in the group
     checkboxes.forEach(c => { if (c !== cb) c.checked = false; });
     const selectAll = container.querySelector('.select-all-checkbox');
     if (selectAll) selectAll.checked = false;
@@ -365,6 +389,9 @@ function handleCheckboxChange(event) {
       if (selectAll) selectAll.checked = true;
     }
   }
+
+  // cleanup temporary marker
+  if (cb.dataset) delete cb.dataset.wasChecked;
 
   handleFilterChange();
 }
