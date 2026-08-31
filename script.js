@@ -229,12 +229,11 @@ function getFilterDisplayLabel(filterName, plural = false) {
 
 function renderFilterCheckList(filterId, items, filterName, showMoreId, forceAllItemsOnLoad = false) {
   const filterContainer = document.getElementById(filterId);
-  const expanded = expandedFilters[filterId] || forceAllItemsOnLoad;
-  // If expanded, make the list scrollable-full (fixed height with overflow)
+  // Render full list by default, and make it scrollable if it exceeds ITEMS_PER_FILTER
+  const itemsToShow = items.length;
   if (filterContainer) {
-    filterContainer.classList.toggle('scrollable-full', expanded && items.length > ITEMS_PER_FILTER);
+    filterContainer.classList.toggle('scrollable-full', items.length > ITEMS_PER_FILTER);
   }
-  const itemsToShow = expanded ? items.length : Math.min(ITEMS_PER_FILTER, items.length);
 
   filterContainer.innerHTML = '';
 
@@ -281,20 +280,8 @@ function renderFilterCheckList(filterId, items, filterName, showMoreId, forceAll
   // Show More button
   if (showMoreId) {
     const showMoreBtn = document.getElementById(showMoreId);
-    if (items.length > ITEMS_PER_FILTER) {
-      showMoreBtn.style.display = 'inline-block';
-      const displayLabel = getFilterDisplayLabel(filterName, true);
-      showMoreBtn.textContent = expanded ? `Show less ${displayLabel}` : `Show all ${displayLabel}`;
-      showMoreBtn.addEventListener('click', () => {
-        expandedFilters[filterId] = !expandedFilters[filterId];
-        // Toggle class for scrollable behavior and re-render
-        const el = document.getElementById(filterId);
-        if (el) el.classList.toggle('scrollable-full', !expandedFilters[filterId] && items.length > ITEMS_PER_FILTER);
-        renderFilterCheckList(filterId, items, filterName, showMoreId, false);
-      });
-    } else {
-      showMoreBtn.style.display = 'none';
-    }
+    // When rendering full lists by default we can hide the show-more button
+    showMoreBtn.style.display = 'none';
   }
 }
 
@@ -321,8 +308,9 @@ function updateProviderList() {
   const preserveSelection = currentProviderInputs.length > 0;
 
   const providerExpanded = expandedFilters['providerList'] || false;
-  // Default to showing a limited number of providers on initial load; expand to view full scrollable list
-  const itemsToShow = providerExpanded ? matchingProviders.length : Math.min(ITEMS_PER_FILTER, matchingProviders.length);
+  // Show all providers by default; make provider list scrollable when long
+  const itemsToShow = matchingProviders.length;
+  providerList.classList.toggle('scrollable-full', matchingProviders.length > ITEMS_PER_FILTER);
 
   // Select All for providers
   const selectAllLabel = document.createElement('label');
@@ -360,19 +348,8 @@ function updateProviderList() {
   });
 
   const showMoreButton = document.getElementById('showMoreProviders');
-    if (matchingProviders.length > ITEMS_PER_FILTER) {
-    showMoreButton.style.display = 'inline-flex';
-    showMoreButton.textContent = providerExpanded ? 'Show less providers' : 'Show all providers';
-    showMoreButton.removeEventListener('click', toggleProviderExpanded);
-    showMoreButton.addEventListener('click', () => {
-      expandedFilters['providerList'] = !expandedFilters['providerList'];
-      const el = document.getElementById('providerList');
-      if (el) el.classList.toggle('scrollable-full', expandedFilters['providerList'] && matchingProviders.length > ITEMS_PER_FILTER);
-      updateProviderList();
-    });
-  } else {
+    // Hide show-more button when showing full provider list
     showMoreButton.style.display = 'none';
-  }
 }
 
 // New unified checkbox change handler to implement "start with all; checking one makes it exclusive" behavior
