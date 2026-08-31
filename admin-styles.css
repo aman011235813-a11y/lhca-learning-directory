@@ -71,9 +71,27 @@ button, input, select, textarea, a { transition: border-color var(--transition),
 
 .auth-section, .dashboard-section { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-lg); padding: 2rem; box-shadow: var(--shadow); }
 .auth-container, .form-card { max-width: 860px; margin: 0 auto; }
-.brand-mark { width: 56px; height: 56px; border-radius: 6px; background: transparent; box-shadow: none; }
+.brand-mark {
+  display: inline-block;
+  width: auto;
+  height: 88px;
+  max-height: 96px;
+  border-radius: 8px;
+  background: white;
+  padding: 0.25rem;
+  box-shadow: 0 6px 14px rgba(16,33,47,0.06);
+  border: 1px solid var(--border);
+  object-fit: contain;
+}
 .brand-mark img, .brand-mark svg { width: 100%; height: auto; display: block; }
-.admin-banner { width: 100%; max-width: 720px; height: auto; display: block; margin-bottom: 1rem; border-radius: 8px; }
+.admin-banner {
+  width: 100%;
+  height: auto;
+  display: block;
+  margin: 0 auto 1rem;
+  max-height: 240px;
+  object-fit: contain;
+}
 .auth-container h1, .dashboard-header h1, .form-card h2 { margin: 0 0 1rem; font-size: clamp(1.9rem, 2.5vw, 2.5rem); line-height: 1.2; }
 .auth-description, .auth-footer p, .form-message, .auth-message { margin: 0.75rem 0 0; color: var(--text-secondary); line-height: 1.7; }
 .auth-form, .course-form { margin-top: 1.5rem; display: grid; gap: 1.25rem; }
