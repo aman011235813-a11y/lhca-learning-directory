@@ -57,6 +57,8 @@ button, input, select, textarea, a {
   margin: 0 auto;
   padding: 1.2rem clamp(1rem, 3vw, 2rem) 0;
 }
+/* allow absolutely-positioned top logo */
+.site-header { position: relative; }
 .brand {
   display: inline-flex;
   align-items: center;
@@ -110,12 +112,14 @@ button, input, select, textarea, a {
   box-shadow: var(--shadow);
   border: 1px solid var(--border);
 }
-.masthead { width: 100%; display: block; padding-top: 0.5rem; position: relative; }
+.masthead { width: 100%; display: block; padding-top: 0.5rem; }
 .masthead-banner { width: 100%; height: auto; object-fit: cover; display: block; }
-.masthead-logo { position: absolute; left: 2rem; top: 50%; transform: translateY(-50%); max-height: 160px; height: auto; width: auto; border-radius: 8px; box-shadow: 0 8px 20px rgba(16,33,47,0.06); border: 1px solid var(--border); background: white; padding: 0.35rem; }
+
+/* Large logo positioned top-right in header */
+.top-logo { position: absolute; right: 1.25rem; top: 0.75rem; max-height: 84px; width: auto; background: white; padding: 0.25rem; border-radius: 8px; box-shadow: 0 8px 20px rgba(16,33,47,0.06); border: 1px solid var(--border); }
 
 @media (max-width: 938px) {
-  .masthead-logo { left: 50%; transform: translate(-50%, -50%); max-height: 110px; }
+  .top-logo { right: 1rem; top: 0.5rem; max-height: 56px; }
   .masthead-banner { max-height: 160px; object-fit: contain; }
 }
 .hero-copy { max-width: 720px; }
