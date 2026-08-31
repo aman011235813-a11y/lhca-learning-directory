@@ -110,6 +110,15 @@ button, input, select, textarea, a {
   box-shadow: var(--shadow);
   border: 1px solid var(--border);
 }
+.hero-banner {
+  width: 100%;
+  max-height: 140px;
+  object-fit: contain;
+  border-radius: 8px;
+  background: white;
+  padding: 0.5rem;
+  box-shadow: 0 8px 20px rgba(16,33,47,0.06);
+}
 .hero-copy { max-width: 720px; }
 .eyebrow {
   margin: 0 0 0.75rem;
