@@ -67,17 +67,16 @@ button, input, select, textarea, a {
   text-decoration: none;
 }
 .brand-mark {
-  display: inline-grid;
-  place-items: center;
-  width: 2.7rem;
-  height: 2.7rem;
-  border-radius: 999px;
-  background: white; /* change to white for better contrast */
-  color: var(--primary-teal);
-  font-size: 1.35rem;
-  font-weight: 800;
-  box-shadow: 0 6px 14px rgba(16, 33, 47, 0.06);
+  display: inline-block;
+  width: auto;
+  height: 88px;
+  max-height: 96px;
+  border-radius: 8px;
+  background: white;
+  padding: 0.25rem;
+  box-shadow: 0 6px 14px rgba(16,33,47,0.06);
   border: 1px solid var(--border);
+  object-fit: contain;
 }
 .brand-copy { display: grid; gap: 0.15rem; }
 .brand-copy strong { font-size: 1rem; line-height: 1.2; }
@@ -131,7 +130,6 @@ button, input, select, textarea, a {
   color: var(--primary-blue);
 }
 
-.brand-mark { width: 56px; height: 56px; border-radius: 8px; display:block; background: white; border: 1px solid var(--border); }
 .brand-mark img, .brand-mark svg { width: 100%; height: auto; display: block; }
 .search-label {
   font-size: 0.95rem;
