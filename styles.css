@@ -221,6 +221,47 @@ button, input, select, textarea, a {
   font-size: 1.05rem;
   color: var(--text-primary);
 }
+
+/* Toggle button inside filter headings */
+.filter-toggle {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem;
+  width: 100%;
+  background: none;
+  border: none;
+  padding: 0;
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+  color: var(--text-primary);
+}
+.filter-toggle:focus { outline: none; }
+.filter-toggle .filter-title { font-weight: 700; }
+.filter-toggle .chev {
+  display: inline-block;
+  transition: transform 200ms var(--transition);
+  font-size: 1rem;
+  color: var(--text-secondary);
+}
+.filter-group:not(.collapsed) .filter-toggle .chev {
+  transform: rotate(180deg);
+}
+
+/* Animate show/hide of the group body */
+.filter-group > *:not(h3) {
+  transition: max-height 260ms ease, opacity 200ms ease, margin 200ms ease, padding 200ms ease;
+  max-height: 999px;
+  opacity: 1;
+  overflow: hidden;
+}
+.filter-group.collapsed > *:not(h3) {
+  max-height: 0;
+  opacity: 0;
+  margin: 0;
+  padding: 0;
+}
 .filter-help { margin: 0; color: var(--text-secondary); line-height: 1.7; }
 .filters-panel label, .filters-panel input { display: block; }
 .filters-panel label {

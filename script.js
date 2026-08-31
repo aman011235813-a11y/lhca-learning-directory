@@ -391,24 +391,48 @@ function setupFilterAccordions() {
   document.querySelectorAll('.filter-group').forEach(group => {
     const header = group.querySelector('h3');
     if (!header) return;
-    header.style.cursor = 'pointer';
-    header.addEventListener('click', () => {
-      const isMobile = window.matchMedia('(max-width: 938px)').matches;
-      if (isMobile) {
-        // On mobile, expand this group and collapse other groups (exclusive accordion)
-        const willExpand = group.classList.contains('collapsed');
-        document.querySelectorAll('.filter-group').forEach(g => {
-          if (g.querySelector('h2')) return; // skip header block
-          g.classList.add('collapsed');
-        });
-        if (willExpand) {
-          group.classList.remove('collapsed');
+
+    // Ensure we only add one toggle button
+    if (!header.querySelector('.filter-toggle')) {
+      const titleText = header.textContent.trim();
+      header.textContent = '';
+      const btn = document.createElement('button');
+      btn.type = 'button';
+      btn.className = 'filter-toggle';
+      const chevron = '<span class="chev" aria-hidden="true">▾</span>';
+      btn.innerHTML = `<span class="filter-title">${titleText}</span>${chevron}`;
+      btn.setAttribute('aria-expanded', group.classList.contains('collapsed') ? 'false' : 'true');
+      header.appendChild(btn);
+
+      btn.addEventListener('click', () => {
+        const isMobile = window.matchMedia('(max-width: 938px)').matches;
+        if (isMobile) {
+          // On mobile, expand this group and collapse other groups (exclusive accordion)
+          const willExpand = group.classList.contains('collapsed');
+          document.querySelectorAll('.filter-group').forEach(g => {
+            if (g.querySelector('h2')) return; // skip header block
+            g.classList.add('collapsed');
+            const toggle = g.querySelector('.filter-toggle');
+            if (toggle) toggle.setAttribute('aria-expanded', 'false');
+          });
+          if (willExpand) {
+            group.classList.remove('collapsed');
+            btn.setAttribute('aria-expanded', 'true');
+            // focus first interactive element for convenience
+            const firstInput = group.querySelector('input');
+            if (firstInput) firstInput.focus();
+          } else {
+            group.classList.add('collapsed');
+            btn.setAttribute('aria-expanded', 'false');
+          }
+        } else {
+          // Desktop/tablet: simple toggle
+          const willExpand = group.classList.contains('collapsed');
+          group.classList.toggle('collapsed');
+          btn.setAttribute('aria-expanded', willExpand ? 'true' : 'false');
         }
-      } else {
-        // Desktop/tablet: simple toggle
-        group.classList.toggle('collapsed');
-      }
-    });
+      });
+    }
   });
 }
 
