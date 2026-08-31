@@ -142,17 +142,21 @@ button, input, select, textarea, a {
   border-color: var(--primary-blue);
   box-shadow: 0 0 0 4px rgba(40, 115, 156, 0.12);
 }
+/* Clear button uses textual label now and a calmer blue tone */
 #clearSearch {
   width: 100%;
   min-height: 4.2rem;
   border: none;
-  background: var(--primary-green);
+  background: var(--primary-blue);
   color: white;
   border-radius: var(--radius-md);
-  font-size: 1.2rem;
+  font-size: 1rem;
+  font-weight: 700;
   cursor: pointer;
 }
-#clearSearch:hover { transform: translateY(-1px); background: var(--primary-blue); }
+#clearSearch:hover { transform: translateY(-1px); background: var(--primary-teal); }
+
+.search-hint { margin-top: 0.5rem; color: var(--text-secondary); font-size: 0.95rem; }
 .provider-search {
   width: 100%;
   min-height: 3.6rem;
@@ -167,9 +171,12 @@ button, input, select, textarea, a {
 .provider-list {
   display: grid;
   gap: 0.75rem;
+  padding-right: 0.5rem;
+}
+
+.provider-list.scrollable-full {
   max-height: 240px;
   overflow-y: auto;
-  padding-right: 0.5rem;
 }
 .provider-list label {
   display: flex;
@@ -200,6 +207,7 @@ button, input, select, textarea, a {
   gap: 1.5rem;
   margin-top: 1.5rem;
 }
+.filter-toggle-button { display: none; margin-bottom: 0.75rem; padding: 0.6rem 0.9rem; border-radius: var(--radius-md); border: 1px solid var(--primary-blue); background: var(--surface); color: var(--primary-blue); font-weight:700; cursor:pointer; }
 .filters-panel, .results-panel {
   background: var(--surface);
   border-radius: var(--radius-lg);
@@ -330,3 +338,18 @@ button, input, select, textarea, a {
 .show-more-courses-button:hover { background: var(--surface); transform: translateY(-2px); }
 @media (max-width: 938px) { .portal-grid { grid-template-columns: 1fr; } .course-card { grid-template-columns: 1fr; } }
 @media (max-width: 640px) { .site-header { flex-direction: column; align-items: flex-start; } .hero { padding: 1.5rem; } .search-field { grid-template-columns: 1fr; } #clearSearch { width: 100%; } }
+
+/* Mobile filter toggle behavior */
+@media (max-width: 938px) {
+  .filter-toggle-button { display: inline-flex; }
+  .filters-panel { display: none; }
+  .filters-open .filters-panel { display: block; }
+  .filters-panel { margin-bottom: 1rem; }
+}
+/* Collapsed filter group styles */
+.filter-group.collapsed .provider-list,
+.filter-group.collapsed .provider-search,
+.filter-group.collapsed .show-more-button,
+.filter-group.collapsed .filter-select-all {
+  display: none !important;
+}

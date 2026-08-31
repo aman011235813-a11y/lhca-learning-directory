@@ -199,6 +199,10 @@ function getFilterDisplayLabel(filterName, plural = false) {
 function renderFilterCheckList(filterId, items, filterName, showMoreId, forceAllItemsOnLoad = false) {
   const filterContainer = document.getElementById(filterId);
   const expanded = expandedFilters[filterId] || forceAllItemsOnLoad;
+  // If expanded, make the list scrollable-full (fixed height with overflow)
+  if (filterContainer) {
+    filterContainer.classList.toggle('scrollable-full', expanded && items.length > ITEMS_PER_FILTER);
+  }
   const itemsToShow = expanded ? items.length : Math.min(ITEMS_PER_FILTER, items.length);
 
   filterContainer.innerHTML = '';
@@ -227,7 +231,7 @@ function renderFilterCheckList(filterId, items, filterName, showMoreId, forceAll
     checkbox.name = filterName;
     checkbox.value = item;
     checkbox.checked = true;
-    checkbox.addEventListener('change', handleFilterChange);
+    checkbox.addEventListener('change', handleCheckboxChange);
 
     label.appendChild(checkbox);
     label.appendChild(document.createTextNode(` ${item}`));
@@ -240,9 +244,12 @@ function renderFilterCheckList(filterId, items, filterName, showMoreId, forceAll
     if (items.length > ITEMS_PER_FILTER) {
       showMoreBtn.style.display = 'inline-block';
       const displayLabel = getFilterDisplayLabel(filterName, true);
-      showMoreBtn.textContent = expanded ? `Show fewer ${displayLabel}` : `Show all ${displayLabel}`;
+      showMoreBtn.textContent = expanded ? `Show less ${displayLabel}` : `Show all ${displayLabel}`;
       showMoreBtn.addEventListener('click', () => {
         expandedFilters[filterId] = !expandedFilters[filterId];
+        // Toggle class for scrollable behavior and re-render
+        const el = document.getElementById(filterId);
+        if (el) el.classList.toggle('scrollable-full', !expandedFilters[filterId] && items.length > ITEMS_PER_FILTER);
         renderFilterCheckList(filterId, items, filterName, showMoreId, false);
       });
     } else {
@@ -252,11 +259,11 @@ function renderFilterCheckList(filterId, items, filterName, showMoreId, forceAll
 }
 
 function updateFilterLists() {
-  // On initial load, render all items expanded (forceAllItemsOnLoad = true)
-  renderFilterCheckList('costList', uniqueCostCategories, 'cost_category', null, true);
-  renderFilterCheckList('categoryList', uniqueCategories, 'category', 'showMoreCategories', true);
-  renderFilterCheckList('deliveryList', uniqueDeliveryModes, 'delivery_mode', 'showMoreDelivery', true);
-  renderFilterCheckList('targetAudienceList', uniqueTargetAudiences, 'target_audience', 'showMoreTargetAudience', true);
+  // On initial load, render only a default number of items; user can expand to see full scrollable list
+  renderFilterCheckList('costList', uniqueCostCategories, 'cost_category', null, false);
+  renderFilterCheckList('categoryList', uniqueCategories, 'category', 'showMoreCategories', false);
+  renderFilterCheckList('deliveryList', uniqueDeliveryModes, 'delivery_mode', 'showMoreDelivery', false);
+  renderFilterCheckList('targetAudienceList', uniqueTargetAudiences, 'target_audience', 'showMoreTargetAudience', false);
 }
 
 function updateProviderList() {
@@ -274,9 +281,8 @@ function updateProviderList() {
   const preserveSelection = currentProviderInputs.length > 0;
 
   const providerExpanded = expandedFilters['providerList'] || false;
-  // On initial load (when no search and not expanded), show all. Otherwise show based on expansion state
-  const isInitialLoad = query === '' && !preserveSelection && !providerExpanded;
-  const itemsToShow = isInitialLoad || providerExpanded ? matchingProviders.length : Math.min(ITEMS_PER_FILTER, matchingProviders.length);
+  // Default to showing a limited number of providers on initial load; expand to view full scrollable list
+  const itemsToShow = providerExpanded ? matchingProviders.length : Math.min(ITEMS_PER_FILTER, matchingProviders.length);
 
   // Select All for providers
   const selectAllLabel = document.createElement('label');
@@ -301,7 +307,7 @@ function updateProviderList() {
     checkbox.name = 'provider';
     checkbox.value = provider;
     checkbox.checked = preserveSelection ? selectedProviderSet.has(provider) : true;
-    checkbox.addEventListener('change', handleFilterChange);
+    checkbox.addEventListener('change', handleCheckboxChange);
 
     label.appendChild(checkbox);
     label.appendChild(document.createTextNode(` ${provider}`));
@@ -311,14 +317,77 @@ function updateProviderList() {
   });
 
   const showMoreButton = document.getElementById('showMoreProviders');
-  if (matchingProviders.length > ITEMS_PER_FILTER) {
+    if (matchingProviders.length > ITEMS_PER_FILTER) {
     showMoreButton.style.display = 'inline-flex';
-    showMoreButton.textContent = providerExpanded ? 'Show fewer providers' : 'Show all providers';
+    showMoreButton.textContent = providerExpanded ? 'Show less providers' : 'Show all providers';
     showMoreButton.removeEventListener('click', toggleProviderExpanded);
-    showMoreButton.addEventListener('click', toggleProviderExpanded);
+    showMoreButton.addEventListener('click', () => {
+      expandedFilters['providerList'] = !expandedFilters['providerList'];
+      const el = document.getElementById('providerList');
+      if (el) el.classList.toggle('scrollable-full', expandedFilters['providerList'] && matchingProviders.length > ITEMS_PER_FILTER);
+      updateProviderList();
+    });
   } else {
     showMoreButton.style.display = 'none';
   }
+}
+
+// New unified checkbox change handler to implement "start with all; checking one makes it exclusive" behavior
+function handleCheckboxChange(event) {
+  const cb = event.target;
+  const container = cb.closest('.provider-list');
+  const name = cb.name;
+  if (!container || !name) {
+    handleFilterChange();
+    return;
+  }
+
+  // If the changed checkbox is the select-all checkbox, let its listener handle it
+  if (cb.classList.contains('select-all-checkbox')) {
+    const checkboxes = Array.from(container.querySelectorAll(`input[name="${name}"]:not(.select-all-checkbox)`));
+    checkboxes.forEach(c => c.checked = cb.checked);
+    handleFilterChange();
+    return;
+  }
+
+  const checkboxes = Array.from(container.querySelectorAll(`input[name="${name}"]:not(.select-all-checkbox)`));
+  if (cb.checked) {
+    // Make this the only checked box in the group
+    checkboxes.forEach(c => { if (c !== cb) c.checked = false; });
+    const selectAll = container.querySelector('.select-all-checkbox');
+    if (selectAll) selectAll.checked = false;
+  } else {
+    // If none remain checked, restore all (select all)
+    const anyChecked = checkboxes.some(c => c.checked);
+    if (!anyChecked) {
+      checkboxes.forEach(c => c.checked = true);
+      const selectAll = container.querySelector('.select-all-checkbox');
+      if (selectAll) selectAll.checked = true;
+    }
+  }
+
+  handleFilterChange();
+}
+
+// Mobile: toggle filters panel
+const mobileToggle = document.getElementById('mobileToggleFilters');
+if (mobileToggle) {
+  mobileToggle.addEventListener('click', () => {
+    const open = document.body.classList.toggle('filters-open');
+    mobileToggle.setAttribute('aria-expanded', open ? 'true' : 'false');
+  });
+}
+
+// Collapsible filter groups (toggle visibility of group body)
+function setupFilterAccordions() {
+  document.querySelectorAll('.filter-group').forEach(group => {
+    const header = group.querySelector('h3');
+    if (!header) return;
+    header.style.cursor = 'pointer';
+    header.addEventListener('click', () => {
+      group.classList.toggle('collapsed');
+    });
+  });
 }
 
 function toggleProviderExpanded() {
@@ -457,6 +526,9 @@ async function initializePortal() {
     // Populate dynamic filters
     updateProviderList();
     updateFilterLists();
+
+    // Setup accordions for filter groups
+    setupFilterAccordions();
 
     // Ensure all checkboxes are checked by default on first load
     ensureAllFiltersChecked();
