@@ -74,11 +74,11 @@ button, input, select, textarea, a { transition: border-color var(--transition),
 .brand-mark {
   display: inline-block;
   width: auto;
-  height: 88px;
-  max-height: 96px;
-  border-radius: 8px;
+  height: 56px;
+  max-height: 56px;
+  border-radius: 6px;
   background: white;
-  padding: 0.25rem;
+  padding: 0.12rem;
   box-shadow: 0 6px 14px rgba(16,33,47,0.06);
   border: 1px solid var(--border);
   object-fit: contain;
