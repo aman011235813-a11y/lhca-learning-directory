@@ -87,14 +87,23 @@ button, input, select, textarea, a {
 .brand-mark {
   display: inline-block;
   width: auto;
-  height: 56px;
-  max-height: 56px;
+  height: 64px;
+  max-height: 64px;
   border-radius: 6px;
   background: white;
   padding: 0.12rem;
   box-shadow: 0 6px 14px rgba(16,33,47,0.06);
   border: 1px solid var(--border);
   object-fit: contain;
+}
+.site-nav a {
+  padding: 0.65rem 0.95rem;
+  border-radius: 999px;
+  border: 1px solid var(--border);
+  background: var(--surface);
+  color: var(--text-secondary);
+  text-decoration: none;
+  font-weight: 700;
 }
 
 .site-nav a.active, .site-nav a:hover {
@@ -369,6 +378,10 @@ button, input, select, textarea, a {
 .course-card-image-container { min-width: 160px; }
 .course-link { display: inline-flex; margin-top: 1rem; font-weight: 700; color: var(--primary-teal); text-decoration: none; }
 .course-link:hover { color: var(--primary-blue); text-decoration: underline; }
+
+/* Prominent visit course button */
+.course-visit { margin-top: 1rem; }
+.course-visit.btn { padding: 0.6rem 1rem; font-size: 0.95rem; }
 .course-meta-small { margin-top: 0.75rem; color: var(--text-secondary); font-size: 0.92rem; }
 .course-tags { display: flex; flex-wrap: wrap; gap: 0.5rem; margin-top: 1rem; }
 .course-tag {

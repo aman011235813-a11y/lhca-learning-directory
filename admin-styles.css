@@ -74,8 +74,8 @@ button, input, select, textarea, a { transition: border-color var(--transition),
 .brand-mark {
   display: inline-block;
   width: auto;
-  height: 56px;
-  max-height: 56px;
+  height: 64px;
+  max-height: 64px;
   border-radius: 6px;
   background: white;
   padding: 0.12rem;

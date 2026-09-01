@@ -524,7 +524,7 @@ async function renderCourses() {
     const subThemes = Array.isArray(course.sub_theme) ? course.sub_theme : parseMultiValueField(course.sub_theme);
     const targetAudiences = Array.isArray(course.target_audience) ? course.target_audience : parseMultiValueField(course.target_audience);
     const tags = [...categories, ...subThemes].map(tag => `<span class="course-tag">${tag}</span>`).join('');
-    const link = course.url ? `<a class="course-link" href="${course.url}" target="_blank" rel="noopener noreferrer">Visit course page</a>` : '';
+    const link = course.url ? `<a class="btn btn-primary course-visit" href="${course.url}" target="_blank" rel="noopener noreferrer">Visit course page</a>` : '';
     const costLabel = course.cost_category || 'N/A';
 
     const thumbnailSrc = selectCourseThumbnail(course);
