@@ -1,6 +1,6 @@
-# Test VC Website
+# Leeds Health and Care Academy (LHCA) - Learning Directory
 
-A minimal static website scaffold created in the current workspace.
+A web based learning discovery tool catered to healthcare stakeholders in Leeds for continuous learning.
 
 ## Files
 
