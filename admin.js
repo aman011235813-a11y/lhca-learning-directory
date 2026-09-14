@@ -1,10 +1,13 @@
 // Supabase configuration
+// Supabase auth and app configuration.
+// These values are used for the admin dashboard login and course management flows.
 const SUPABASE_URL = 'https://lfzukqnvyvjnwyhjnjho.supabase.co';
 const SUPABASE_KEY = 'sb_publishable_Own4ZNjQR1ojVniwJxbj2Q_sVFC9Ycw';
 const ACCESS_TOKEN_KEY = 'supabase_access_token';
 const REFRESH_TOKEN_KEY = 'supabase_refresh_token';
 const EXPIRES_AT_KEY = 'supabase_expires_at';
 
+// DOM references for the login and dashboard panels.
 const authSection = document.getElementById('loginSection');
 const dashboardSection = document.getElementById('dashboardSection');
 const loginForm = document.getElementById('loginForm');
@@ -25,6 +28,7 @@ const nextPageBtn = document.getElementById('nextPageBtn');
 const showMoreBtn = document.getElementById('showMoreBtn');
 const pageInfo = document.getElementById('pageInfo');
 
+// Shared state for pagination, filtering and editing.
 let currentEditingCourseId = null;
 let cachedCourses = [];
 let filteredCourses = [];
@@ -32,6 +36,7 @@ let currentPage = 1;
 let perPage = 25;
 let currentReviewStatusFilter = '';
 
+// Small helper wrapper around Supabase auth and REST calls.
 const supabase = {
   url: SUPABASE_URL,
   key: SUPABASE_KEY,
@@ -149,6 +154,7 @@ const supabase = {
   },
 };
 
+// When login succeeds, keep the access token so the admin session stays active.
 function storeAuthSession(sessionData) {
   if (sessionData?.access_token) {
     localStorage.setItem(ACCESS_TOKEN_KEY, sessionData.access_token);
@@ -337,6 +343,7 @@ function formatValue(value) {
   return value ?? '';
 }
 
+// Build the object that matches the courses_new table before submitting to Supabase.
 function createCoursePayload(formData) {
   const rawCostValue = formData.get('cost_gbp');
   const costValue = Number(rawCostValue);

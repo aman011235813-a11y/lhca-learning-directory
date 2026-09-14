@@ -20,6 +20,7 @@
     </nav>
   </header>
   <main class="admin-page">
+    <!-- Public-facing login screen for admin access -->
     <section id="loginSection" class="auth-section">
       <div class="auth-container">
         <img src="assets/banner.svg" class="admin-banner" alt="Fairer Healthier Leeds" />
@@ -42,6 +43,7 @@
         </div>
       </div>
     </section>
+    <!-- Main dashboard shown only after a valid admin sign-in -->
     <section id="dashboardSection" class="dashboard-section" style="display: none;">
       <div class="dashboard-header">
         <h1>Course Management Dashboard</h1>
@@ -71,6 +73,7 @@
         </div>
       </div>
       <div class="dashboard-content">
+        <!-- Course list panel: browse, search, paginate and manage existing records -->
         <div class="form-card">
           <div class="section-heading">
             <div>
@@ -90,6 +93,7 @@
           </div>
           <div id="coursesList" class="course-manager-list"></div>
         </div>
+        <!-- Course form panel: add new entries or edit an existing one -->
         <div class="form-card add-course-card">
           <div class="section-heading">
             <div>

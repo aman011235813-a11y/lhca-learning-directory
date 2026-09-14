@@ -1,5 +1,7 @@
 import { createClient } from '@supabase/supabase-js';
 
+// Server-side Supabase client used by the admin workflow.
+// The service role key is kept on the backend so we can safely create records.
 const supabaseUrl = process.env.SUPABASE_URL;
 const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
 
@@ -12,6 +14,7 @@ const supabase = createClient(supabaseUrl || '', supabaseServiceKey || '', {
 });
 
 export default async function handler(req, res) {
+  // Allow browser requests from the admin UI and support preflight checks.
   if (req.method === 'OPTIONS') {
     res.setHeader('Access-Control-Allow-Origin', '*');
     res.setHeader('Access-Control-Allow-Methods', 'POST, PATCH, OPTIONS');
@@ -30,6 +33,7 @@ export default async function handler(req, res) {
     return;
   }
 
+  // Insert a new course record into the main courses table.
   try {
     const { data, error } = await supabase.from('courses_new').insert([req.body]).select().single();
 

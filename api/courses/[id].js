@@ -1,5 +1,6 @@
 import { createClient } from '@supabase/supabase-js';
 
+// Server-side Supabase client used for course edits from the admin tool.
 const supabaseUrl = process.env.SUPABASE_URL;
 const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
 
@@ -12,6 +13,7 @@ const supabase = createClient(supabaseUrl || '', supabaseServiceKey || '', {
 });
 
 export default async function handler(req, res) {
+  // Support browser preflight checks before updates are sent.
   if (req.method === 'OPTIONS') {
     res.setHeader('Access-Control-Allow-Origin', '*');
     res.setHeader('Access-Control-Allow-Methods', 'PATCH, OPTIONS');
@@ -30,6 +32,7 @@ export default async function handler(req, res) {
     return;
   }
 
+  // Update the selected course by id.
   try {
     const { id } = req.query;
     const { data, error } = await supabase

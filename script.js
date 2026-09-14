@@ -75,6 +75,9 @@ const COURSE_THUMBNAILS = [
   'assets/course-thumb-5.svg',
 ];
 
+// -----------------------------
+// Shared helpers and filtering
+// -----------------------------
 function normalize(value) {
   return value.toString().trim().toLowerCase();
 }
@@ -201,6 +204,9 @@ function matchesCostCategory(course, costCategories) {
   return costCategories.includes(course.cost_category);
 }
 
+// -----------------------------
+// Filter checkbox rendering
+// -----------------------------
 function getFilterDisplayLabel(filterName, plural = false) {
   const labelMap = {
     category: 'category',
@@ -403,7 +409,9 @@ function handleCheckboxChange(event) {
   handleFilterChange();
 }
 
-// Mobile: toggle filters panel
+// -----------------------------
+// Mobile filter interactions
+// -----------------------------
 const mobileToggle = document.getElementById('mobileToggleFilters');
 if (mobileToggle) {
   mobileToggle.addEventListener('click', () => {
