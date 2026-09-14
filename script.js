@@ -1,5 +1,5 @@
 // Supabase configuration
-// Use the publishable key (sb_publishable_...) for the browser frontend.
+// Publishable key (sb_publishable_...) for the browser frontend.
 const SUPABASE_URL = 'https://lfzukqnvyvjnwyhjnjho.supabase.co';
 const SUPABASE_KEY = 'sb_publishable_Own4ZNjQR1ojVniwJxbj2Q_sVFC9Ycw';
 
@@ -338,8 +338,7 @@ function updateProviderList() {
     // Record prior state for pointer and keyboard interactions
     checkbox.addEventListener('pointerdown', () => { checkbox.dataset.wasChecked = checkbox.checked ? '1' : '0'; });
     checkbox.addEventListener('keydown', (e) => { if (e.key === ' ' || e.key === 'Spacebar' || e.key === 'Enter') checkbox.dataset.wasChecked = checkbox.checked ? '1' : '0'; });
-    checkbox.addEventListener('change', handleCheckboxChange);
-
+    checkbox.addEventListener('change', handleCheckboxChange); it to backet
     label.appendChild(checkbox);
     label.appendChild(document.createTextNode(` ${provider}`));
     label.style.display = 'flex';
