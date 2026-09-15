@@ -344,7 +344,7 @@ function updateProviderList() {
     // Record prior state for pointer and keyboard interactions
     checkbox.addEventListener('pointerdown', () => { checkbox.dataset.wasChecked = checkbox.checked ? '1' : '0'; });
     checkbox.addEventListener('keydown', (e) => { if (e.key === ' ' || e.key === 'Spacebar' || e.key === 'Enter') checkbox.dataset.wasChecked = checkbox.checked ? '1' : '0'; });
-    checkbox.addEventListener('change', handleCheckboxChange); it to backet
+    checkbox.addEventListener('change', handleCheckboxChange);
     label.appendChild(checkbox);
     label.appendChild(document.createTextNode(` ${provider}`));
     label.style.display = 'flex';
@@ -533,6 +533,12 @@ async function renderCourses() {
     const tags = [...categories, ...subThemes].map(tag => `<span class="course-tag">${tag}</span>`).join('');
     const link = course.url ? `<a class="btn btn-primary course-visit" href="${course.url}" target="_blank" rel="noopener noreferrer">Visit course page</a>` : '';
     const costLabel = course.cost_category || 'N/A';
+    const description = String(course.description || 'Description not specified').trim();
+    const descriptionLimit = 240;
+    const hasLongDescription = description.length > descriptionLimit;
+    const descriptionPreview = hasLongDescription
+      ? `${description.slice(0, descriptionLimit).trimEnd()}...`
+      : description;
 
     const thumbnailSrc = selectCourseThumbnail(course);
 
@@ -543,20 +549,32 @@ async function renderCourses() {
       <div>
         <h3>${course.title}</h3>
         <div class="course-meta">
-          <span>${course.provider}</span>
-          <span>• ${course.delivery_mode || 'N/A'}</span>
-          <span>• ${course.duration || 'N/A'}</span>
-          <span>• ${costLabel}</span>
+          <span><strong>Provider:</strong> ${course.provider || 'Not specified'}</span>
+          <span>• <strong>Delivery:</strong> ${course.delivery_mode || 'N/A'}</span>
+          <span>• <strong>Duration:</strong> ${course.duration || 'N/A'}</span>
+          <span>• <strong>Cost:</strong> ${costLabel}</span>
         </div>
-        <p class="course-description">${course.description}</p>
+        <p class="course-description">${descriptionPreview}</p>
+        ${hasLongDescription ? '<button type="button" class="course-read-more" aria-expanded="false">Read more</button>' : ''}
         <div class="course-meta course-meta-small">
-          <span>${course.education_outcome || 'Outcome not specified'}</span>
-          <span>• ${course.access || 'Access details not specified'}</span>
+          <span><strong>Outcome:</strong> ${course.education_outcome || 'Outcome not specified'}</span>
+          <span>• <strong>Access:</strong> ${course.access || 'Access details not specified'}</span>
         </div>
         <div class="course-tags">${tags}</div>
         ${link}
       </div>
     `;
+
+    if (hasLongDescription) {
+      const descriptionElement = card.querySelector('.course-description');
+      const readMoreButton = card.querySelector('.course-read-more');
+      readMoreButton.addEventListener('click', () => {
+        const isExpanded = readMoreButton.getAttribute('aria-expanded') === 'true';
+        descriptionElement.textContent = isExpanded ? descriptionPreview : description;
+        readMoreButton.setAttribute('aria-expanded', String(!isExpanded));
+        readMoreButton.textContent = isExpanded ? 'Read more' : 'Read less';
+      });
+    }
 
     resultsList.appendChild(card);
   });
